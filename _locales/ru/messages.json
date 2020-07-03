@@ -1,0 +1,56 @@
+{
+    "language": {
+        "message": "ru"
+    },
+    "application_title": {
+        "message": "Улучшенная история Chrome"
+    },
+    "application_description": {
+        "message": "Замена встроенной истории Chrome этим улучшенным расширением"
+    },
+    "search_placeholder": {
+        "message": "Поиск в истории"
+    },
+    "search_display": {
+        "message": "Результаты поиска для"
+    },
+    "search_btn": {
+        "message": "Поиск"
+    },
+    "search_clear": {
+        "message": "[Очистить всё в результатах поиска]"
+    },
+    "search_clear_confirm": {
+        "message": "Вы уверены, что хотите удалить все записи в результатах поиска?\nЭта операция не может быть отменена!"
+    },
+    "history_remove_single": {
+        "message": "Удалить запись"
+    },
+    "history_date_empty": {
+        "message": "Этот день не имеет записей в истории"
+    },
+    "datepicker_go_today": {
+        "message": "Показать сегодня"
+    },
+    "created_by": {
+        "message": "Создано"
+    },
+    "history_view_more": {
+        "message": "Просмотреть всю историю"
+    },
+    "history_recent": {
+        "message": "Недавняя история"
+    },
+    "date_format": {
+        "message": "d mmmm yyyy, dddd"
+    },
+    "date_week_start": {
+        "message": "1"
+    },
+    "date_day_names": {
+        "message": "вс|пн|вт|ср|чт|пт|сб|воскресенье|понедельник|вторник|среда|четверг|пятница|суббота"
+    },
+    "date_month_names": {
+        "message": "янв|фев|мар|апр|май|июн|июл|авг|сен|окт|ноя|дек|января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря"
+    }
+}

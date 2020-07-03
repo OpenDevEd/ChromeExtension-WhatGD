@@ -1,0 +1,56 @@
+{
+    "language": {
+        "message": "de"
+    },
+    "application_title": {
+        "message": "Chrome Better History"
+    },
+    "application_description": {
+        "message": "Ersetzt den Standard Chrome Verlauf mit diesem Better History Plugin"
+    },
+    "search_placeholder": {
+        "message": "Verlauf durchsuchen"
+    },
+    "search_display": {
+        "message": "Suchergebnisse für"
+    },
+    "search_btn": {
+        "message": "Suche"
+    },
+    "search_clear": {
+        "message": "[Alles im Suchergebnis löschen]"
+    },
+    "search_clear_confirm": {
+        "message": "Möchten Sie wirklich alle Einträge im Suchergebnis entfernen ?\nDieser Vorgang kann nicht rückgängig gemacht werden !"
+    },
+    "history_remove_single": {
+        "message": "Eintrag löschen"
+    },
+    "history_date_empty": {
+        "message": "Für diesen Tag gibt es keinen Verlauf"
+    },
+    "datepicker_go_today": {
+        "message": "Gehe zu Heute"
+    },
+    "created_by": {
+        "message": "Erstellt von"
+    },
+    "history_view_more": {
+        "message": "Zeige gesamten Verlauf"
+    },
+    "history_recent": {
+        "message": "kürzlicher Verlauf"
+    },
+    "date_format": {
+        "message": "dddd, d. mmmm yyyy"
+    },
+    "date_week_start": {
+        "message": "1"
+    },
+    "date_day_names": {
+        "message": "Son|Mon|Die|Mit|Don|Fre|Sam|Sonntag|Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Samstag"
+    },
+    "date_month_names": {
+        "message": "Jan|Feb|Mär|Apr|Mai|Jun|Jul|Aug|Sep|Okt|Nov|Dez|Januar|Februar|März|April|Mai|Juni|Juli|August|September|Oktober|November|Dezember"
+    }
+}
