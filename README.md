@@ -12,7 +12,9 @@ mkdir chrome-extensions
 cd chrome-extensions
 git clone https://github.com/OpenDevEd/ChromeExtension-WhatGD.git
 ```
-Then in Chrome, got Extensions, enable Developer mode, then load unpacked. Navigate to home/chrome-extensions/ChromeExtension-WhatGD and open.
+Then in Chrome, go to Extensions, enable Developer mode, then "load unpacked". 
+
+Navigate to home/chrome-extensions/ChromeExtension-WhatGD and open.
 
 # Icon
 
