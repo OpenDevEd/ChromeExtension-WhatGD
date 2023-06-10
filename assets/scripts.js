@@ -67,15 +67,31 @@ var getHistoryForDays = function(day, dayto, scroll, nb, filter){
     var dateStart = new Date(day.getFullYear(),day.getMonth(),day.getDate(),0,0,0,0);
     var dateEnd = new Date(dayto.getFullYear(),dayto.getMonth(),dayto.getDate(),23,59,59);
     var query = {
-        text: filter,
+        text: 'google',
         startTime: dateStart.getTime(),
         endTime: dateEnd.getTime(),
         maxResults: nb
     };
     loading = true;
-    chrome.history.search(query, function(results){
-        historyResponse(results, dateStart, dateEnd, scroll);
+
+    // Regular expression to match URLs
+    var regex = /^(?!.*accounts\.google\.com)(?!.*app\.diagrams\.net\/google\?state=)(https?:\/\/(docs\.google\.com\/(document|spreadsheets|presentation|forms)|app\.diagrams\.net))/;
+
+    chrome.history.search(query, function(resultsGoogle){
+
+        var queryDiagrams = {
+            text: 'diagrams',
+            startTime: dateStart.getTime(),
+            endTime: dateEnd.getTime(),
+            maxResults: nb
+        };
+
+        chrome.history.search(queryDiagrams, function(resultsDiagrams){
+            var filteredResults = resultsDiagrams.concat(resultsGoogle).filter(item => regex.test(item.url));
+            historyResponse(filteredResults, dateStart, dateEnd, scroll);
+        });
     });
+    
 };
 
 
@@ -108,9 +124,17 @@ var search = function(){
     }
 };
 
+
+function faviconURL(u) {
+    var url = new URL(chrome.runtime.getURL('/_favicon/'));
+    url.searchParams.set('pageUrl', u);
+    url.searchParams.set('size', '32');
+    return url.toString();
+  }
+
 var getFavicon = function(url){
-    url = escapeHtml(url);
-    return 'background-image: -webkit-image-set(url(\'chrome://favicon/size/16@1x/' + url + '\') 1x, url(\'chrome://favicon/size/16@2x/' + url + '\') 2x)';
+    url = faviconURL(url);
+    return "background-image: -webkit-image-set(url('" + url + "') 1x, url('" + url + "') 2x)";
 };
 var historyResponse = function(results, start, end, scroll){
     var datas = {}, item_date, item_date_day;
@@ -233,7 +257,7 @@ $(document).ready(function(){
 
     if($('body.popup').length){
 	daysago = new Date(Date.now() - 10 * 24 * 3600 * 1000)
-        getHistoryForDays(daysago, today, false, 50, "google.com");
+        getHistoryForDays(daysago, today, false, 150, "google.com");
         $('#view-full-history').on('click', function(){
             // chrome.tabs.create({url: 'chrome://history'});
 	    chrome.tabs.create({ url: chrome.runtime.getURL("whatgd.html") });
