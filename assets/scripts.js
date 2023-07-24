@@ -19,33 +19,33 @@
  * @license     http://www.opensource.org/licenses/BSD-3-Clause New BSD license
  */
 
-var now = new Date(), today = new Date(now.getFullYear(),now.getMonth(),now.getDate(),0,0,0,0), is_searching = false, loading = false;
-var getLanguage = function(){
+var now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0), is_searching = false, loading = false;
+var getLanguage = function () {
     return chrome.i18n.getMessage('language').substr(0, 2);
 };
 
-var getContainerScrollHeight = function(){
+var getContainerScrollHeight = function () {
     return $('#container').prop('scrollHeight') - 939;
 };
 
-var clearSearch = function(){
+var clearSearch = function () {
     $('#container').html('');
     $('#search').val('');
     $('#history-summary-label').hide();
     $('#history-summary-search').hide();
     $('#history-summary-clear').hide();
-    $('#datepicker').datetimepicker({minDate:false});
+    $('#datepicker').datetimepicker({ minDate: false });
     is_searching = false;
 };
 
-var getHistoryByDay = function(day, scroll, nb, filter){
+var getHistoryByDay = function (day, scroll, nb, filter) {
     scroll = scroll == undefined;
     nb = nb || 5000;
-    if(is_searching){
+    if (is_searching) {
         clearSearch();
     }
-    var dateStart = new Date(day.getFullYear(),day.getMonth(),day.getDate(),0,0,0,0);
-    var dateEnd = new Date(day.getFullYear(),day.getMonth(),day.getDate(),23,59,59);
+    var dateStart = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 0, 0, 0, 0);
+    var dateEnd = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 23, 59, 59);
     var query = {
         text: filter,
         startTime: dateStart.getTime(),
@@ -53,19 +53,19 @@ var getHistoryByDay = function(day, scroll, nb, filter){
         maxResults: nb
     };
     loading = true;
-    chrome.history.search(query, function(results){
+    chrome.history.search(query, function (results) {
         historyResponse(results, dateStart, dateEnd, scroll);
     });
 };
 
-var getHistoryForDays = function(day, dayto, scroll, nb, filter){
+var getHistoryForDays = function (day, dayto, scroll, nb, filter) {
     scroll = scroll == undefined;
     nb = nb || 5000;
-    if(is_searching){
+    if (is_searching) {
         clearSearch();
     }
-    var dateStart = new Date(day.getFullYear(),day.getMonth(),day.getDate(),0,0,0,0);
-    var dateEnd = new Date(dayto.getFullYear(),dayto.getMonth(),dayto.getDate(),23,59,59);
+    var dateStart = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 0, 0, 0, 0);
+    var dateEnd = new Date(dayto.getFullYear(), dayto.getMonth(), dayto.getDate(), 23, 59, 59);
     var query = {
         text: 'google',
         startTime: dateStart.getTime(),
@@ -75,9 +75,10 @@ var getHistoryForDays = function(day, dayto, scroll, nb, filter){
     loading = true;
 
     // Regular expression to match URLs
-    var regex = /^(?!.*accounts\.google\.com)(?!.*app\.diagrams\.net\/google\?state=)(https?:\/\/(docs\.google\.com\/(document|spreadsheets|presentation|forms)|app\.diagrams\.net))/;
+    //var regex = /^(?!.*accounts\.google\.com)(https?:\/\/(docs\.google\.com\/(document|spreadsheets|presentation|forms)|app\.diagrams\.net|drive.google.com))/;
+    var regex = /^(?!.*accounts\.google\.com)(?!.*app\.diagrams\.net\/google\?state=)(https?:\/\/(docs\.google\.com\/(document|spreadsheets|presentation|forms)|app\.diagrams\.net|drive.google.com))/;
 
-    chrome.history.search(query, function(resultsGoogle){
+    chrome.history.search(query, function (resultsGoogle) {
 
         var queryDiagrams = {
             text: 'diagrams',
@@ -86,23 +87,23 @@ var getHistoryForDays = function(day, dayto, scroll, nb, filter){
             maxResults: nb
         };
 
-        chrome.history.search(queryDiagrams, function(resultsDiagrams){
-            var filteredResults = resultsDiagrams.concat(resultsGoogle).filter(item => regex.test(item.url));
+        chrome.history.search(queryDiagrams, function (resultsDiagrams) {
+             var filteredResults = resultsDiagrams.concat(resultsGoogle).filter(item => regex.test(item.url));
             historyResponse(filteredResults, dateStart, dateEnd, scroll);
         });
     });
-    
+
 };
 
 
-var search = function(){
+var search = function () {
     var text = $('#search').val();
-    if(text){
-        $('#datepicker').datetimepicker({minDate:today});
+    if (text) {
+        $('#datepicker').datetimepicker({ minDate: today });
         is_searching = true;
         $('#container').html('<div class="loading"></div>');
-        var dateStart = new Date(1970,1,1,0,0,0,0);
-        var dateEnd = new Date(today.getFullYear(),today.getMonth(),today.getDate(),23,59,59);
+        var dateStart = new Date(1970, 1, 1, 0, 0, 0, 0);
+        var dateEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
         var query = {
             text: text,
             startTime: dateStart.getTime(),
@@ -113,11 +114,11 @@ var search = function(){
         $('#history-summary-search').html(text).css('display', 'inline-block');
         $('#history-summary-clear').css('display', 'inline-block');
         loading = true;
-        chrome.history.search(query, function(results){
+        chrome.history.search(query, function (results) {
             historyResponse(results, dateStart, dateEnd, false);
         });
     } else {
-        if(is_searching){
+        if (is_searching) {
             clearSearch();
         }
         getHistoryByDay(today);
@@ -130,71 +131,81 @@ function faviconURL(u) {
     url.searchParams.set('pageUrl', u);
     url.searchParams.set('size', '32');
     return url.toString();
-  }
+}
 
-var getFavicon = function(url){
+var getFavicon = function (url) {
     url = faviconURL(url);
     return "background-image: -webkit-image-set(url('" + url + "') 1x, url('" + url + "') 2x)";
 };
-var historyResponse = function(results, start, end, scroll){
+var historyResponse = function (results, start, end, scroll) {
     var datas = {}, item_date, item_date_day;
     var checker = {};
-    $.each(results, function(k, v){
-	var shorturl = v.url.replace(/(\#|\?).*$/,"").replace(/(\/edit).*$/,"").replace(/^.*\//,"");
-	if (!(shorturl in checker)) {
+    $.each(results, function (k, v) {
+        //var shorturl = v.url.replace(/(\#|\?).*$/, "").replace(/(\/edit).*$/, "").replace(/^.*\//, "");
+
+        const regex = /(?:\/d\/|#|folders\/)([A-Za-z0-9_\-]+)(?:\/edit|\/|$)/;
+        const match = v.url.match(regex);
+
+        if (match) {
+            var shorturl = match[1];
+        }else{
+            return;
+        }
+
+        if (!(shorturl in checker)) {
             item_date = new Date(v.lastVisitTime);
-            item_date_day = new Date(item_date.getFullYear(),item_date.getMonth(),item_date.getDate(),0,0,0,0).getTime();
-            if(start != undefined && end != undefined && !(item_date >= start && item_date <= end)){
-		return;
+            item_date_day = new Date(item_date.getFullYear(), item_date.getMonth(), item_date.getDate(), 0, 0, 0, 0).getTime();
+            if (start != undefined && end != undefined && !(item_date >= start && item_date <= end)) {
+                return;
             }
-            if(!datas[item_date_day]){
-		datas[item_date_day] = {};
+            if (!datas[item_date_day]) {
+                datas[item_date_day] = {};
             }
             datas[item_date_day][v.lastVisitTime] = [v.id, v.title, v.url];
-	    checker[shorturl] = 1;
-	} else {
-	};
+            checker[shorturl] = 1;
+        } else {
+        };
     });
-    if($.isEmptyObject(datas)){
+    if ($.isEmptyObject(datas)) {
         datas[start.getTime()] = {};
         datas[start.getTime()]['empty'] = [];
     }
-    $.each(datas, function(k, v){
+    $.each(datas, function (k, v) {
         var output = '';
-        if(!$('#container #' + k).length){
-            output+= '<div class="entry" id="' + k + '">';
+        if (!$('#container #' + k).length) {
+            output += '<div class="entry" id="' + k + '">';
         }
-        output+= '<h2>' + new Date(parseFloat(k)).format(chrome.i18n.getMessage('date_format')) + '</h2>';
-        $.each(v, function(id, item){
-            if(id != 'empty'){
-                output+= '<span class="row" id="' + item[0] + '">';
+        output += '<h2>' + new Date(parseFloat(k)).format(chrome.i18n.getMessage('date_format')) + '</h2>';
+        $.each(v, function (id, item) {
+            if (id != 'empty') {
+                output += '<span class="row" id="' + item[0] + '">';
                 // output+= '<a class="remove-single" title="' + chrome.i18n.getMessage('history_remove_single') + '">⨯</a>';
-                output+= '<span class="date">' + new Date(parseFloat(id)).format('isoDateTime') + '</span>';
-                output+= '<a class="link" href="' + escapeHtml(item[2]) + '" target="_blank" style="' + getFavicon(item[2]) + '">' + escapeHtml(item[1] ? item[1] : item[2]) + '</a>';
-                output+= '</span>';
+                output += '<span class="date">' + new Date(parseFloat(id)).format('isoDateTime') + '</span>';
+                output += '<a class="link" href="' + escapeHtml(item[2]) + '" target="_blank" style="' + getFavicon(item[2]) + '">' + escapeHtml(item[1] ? item[1] : item[2]) + '</a>';
+                output += '</span>';
             } else {
-                output+= '<span class="row empty"><span>';
-                output+= chrome.i18n.getMessage('history_date_empty');
-                output+= '</span></span>';
+                output += '<span class="row empty"><span>';
+                output += chrome.i18n.getMessage('history_date_empty');
+                output += '</span></span>';
             }
         });
-        if(!$('#container #' + k).length){
-            output+= '</div>';
+        if (!$('#container #' + k).length) {
+            output += '</div>';
         }
-        if($('#container #' + k).length){
+        if ($('#container #' + k).length) {
             $('#' + k).html(output);
         } else {
-            if($('#container > .entry').length){
-                $('#container > .entry').each(function(){
-                    if($(this).is(':last-child')){
-                        if(k < $(this).attr('id')){
+            if ($('#container > .entry').length) {
+                $('#container > .entry').each(function () {
+                    if ($(this).is(':last-child')) {
+                        if (k < $(this).attr('id')) {
                             $(output).insertAfter($(this));
                         } else {
                             $(output).insertBefore($(this));
                         }
                         return false;
-                    } else if(k > $(this).attr('id')){
-                        if(k < $(this).attr('id')){
+                    } else if (k > $(this).attr('id')) {
+                        if (k < $(this).attr('id')) {
                             $(output).insertAfter($(this));
                         } else {
                             $(output).insertBefore($(this));
@@ -206,18 +217,18 @@ var historyResponse = function(results, start, end, scroll){
                 $('#container').append(output);
             }
         }
-        if(scroll && $('#container #' + k).length){
+        if (scroll && $('#container #' + k).length) {
             $('#container').scrollTo('#' + k, { offsetTop: 91, duration: 0 });
         }
-        $('.remove-single', '#' + k).on('click', function(){
-            chrome.history.deleteUrl({url: $(this).parent().find('.link').attr('href')});
+        $('.remove-single', '#' + k).on('click', function () {
+            chrome.history.deleteUrl({ url: $(this).parent().find('.link').attr('href') });
             $(this).parent().remove();
         })
     });
-    if(is_searching && $('#container .loading').length){
+    if (is_searching && $('#container .loading').length) {
         $('#container .loading').remove();
     }
-    if($('body.popup').length){
+    if ($('body.popup').length) {
         $('html, body').height($('.sizable').height());
     }
     loading = false;
@@ -225,7 +236,7 @@ var historyResponse = function(results, start, end, scroll){
     $('#search').focus();
 };
 
-var escapeHtml = function(unsafe) {
+var escapeHtml = function (unsafe) {
     return unsafe
         .replace(/&/g, "&amp;")
         .replace(/</g, "&#x3C;")
@@ -234,20 +245,20 @@ var escapeHtml = function(unsafe) {
         .replace(/'/g, "&#039;");
 };
 
-$(document).ready(function(){
+$(document).ready(function () {
 
     // search box actions
-    $("#myInput").on("keyup", function() {
-	var value = $(this).val().toLowerCase();
-	$("span.row").filter(function() {
-	    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-	});
+    $("#myInput").on("keyup", function () {
+        var value = $(this).val().toLowerCase();
+        $("span.row").filter(function () {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
     });
-    
+
     // Load and replace language
-    $('[i18n]').each(function(){
+    $('[i18n]').each(function () {
         var i18n = $(this).attr('i18n');
-        if(i18n.indexOf(':') >= 0){
+        if (i18n.indexOf(':') >= 0) {
             var tmp = i18n.split(':');
             $(this).attr(tmp[0], chrome.i18n.getMessage(tmp[1]));
         } else {
@@ -255,88 +266,88 @@ $(document).ready(function(){
         }
     });
 
-    if($('body.popup').length){
-	daysago = new Date(Date.now() - 10 * 24 * 3600 * 1000)
+    if ($('body.popup').length) {
+        daysago = new Date(Date.now() - 10 * 24 * 3600 * 1000)
         getHistoryForDays(daysago, today, false, 150, "google.com");
-        $('#view-full-history').on('click', function(){
+        $('#view-full-history').on('click', function () {
             // chrome.tabs.create({url: 'chrome://history'});
-	    chrome.tabs.create({ url: chrome.runtime.getURL("whatgd.html") });
+            chrome.tabs.create({ url: chrome.runtime.getURL("whatgd.html") });
         });
     } else {
-	daysago = new Date(Date.now() - 90 * 24 * 3600 * 1000)
+        daysago = new Date(Date.now() - 90 * 24 * 3600 * 1000)
         getHistoryForDays(daysago, today, false, 10000, "google.com");
-	/*
-        $('#datepicker').datetimepicker({
-            timepicker: false,
-            dayOfWeekStart: parseInt(chrome.i18n.getMessage('date_week_start')),
-            value: new Date(),
-            maxDate: today,
-            inline: true,
-            todayButton: false,
-            lang: getLanguage(),
-            onSelectDate: function(date){
-                getHistoryByDay(date);
-            }
-        });
-
-        getHistoryByDay(today);
-
-        $('#search').on('keyup', function(e){
-            if(e.keyCode == 13){
+        /*
+            $('#datepicker').datetimepicker({
+                timepicker: false,
+                dayOfWeekStart: parseInt(chrome.i18n.getMessage('date_week_start')),
+                value: new Date(),
+                maxDate: today,
+                inline: true,
+                todayButton: false,
+                lang: getLanguage(),
+                onSelectDate: function(date){
+                    getHistoryByDay(date);
+                }
+            });
+    
+            getHistoryByDay(today);
+    
+            $('#search').on('keyup', function(e){
+                if(e.keyCode == 13){
+                    search();
+                }
+            }).on('search', function(){
                 search();
-            }
-        }).on('search', function(){
-            search();
-        });
-
-        $('#search-btn').on('click', function(){
-            search();
-        });
-
-        $('#container').on('scroll', function(){
-            if(!is_searching && !loading){
-                if(($(this)[0].scrollTop) >= getContainerScrollHeight() * 0.9){
-                    var last = new Date(parseFloat($('#container .entry:last-child').attr('id')));
-                    last.setDate(last.getDate() - 1);
-                    if($('#' + last.getTime()).length == 0){
-                        getHistoryByDay(last, false);
+            });
+    
+            $('#search-btn').on('click', function(){
+                search();
+            });
+    
+            $('#container').on('scroll', function(){
+                if(!is_searching && !loading){
+                    if(($(this)[0].scrollTop) >= getContainerScrollHeight() * 0.9){
+                        var last = new Date(parseFloat($('#container .entry:last-child').attr('id')));
+                        last.setDate(last.getDate() - 1);
+                        if($('#' + last.getTime()).length == 0){
+                            getHistoryByDay(last, false);
+                        }
                     }
                 }
-            }
-        });
-
-        $('#datepicker-today').on('click', function(){
-            $('#datepicker').datetimepicker({value: new Date()});
-            getHistoryByDay(today);
-        });
-
-        $('#search').focus();
-*/
+            });
+    
+            $('#datepicker-today').on('click', function(){
+                $('#datepicker').datetimepicker({value: new Date()});
+                getHistoryByDay(today);
+            });
+    
+            $('#search').focus();
+    */
     }
 
-    $('#history-summary-clear').on('click', function(e){
+    $('#history-summary-clear').on('click', function (e) {
         e.preventDefault();
-        if(confirm(chrome.i18n.getMessage('search_clear_confirm'))){
-            $('.remove-single').each(function(){
+        if (confirm(chrome.i18n.getMessage('search_clear_confirm'))) {
+            $('.remove-single').each(function () {
                 $(this).click();
             });
         }
     })
 });
 
-$.fn.scrollTo = function( target, options, callback ){
-    if(typeof options == 'function' && arguments.length == 2){ callback = options; options = target; }
+$.fn.scrollTo = function (target, options, callback) {
+    if (typeof options == 'function' && arguments.length == 2) { callback = options; options = target; }
     var settings = $.extend({
         scrollTarget: target,
         offsetTop: 50,
         duration: 100,
         easing: 'swing'
     }, options);
-    return this.each(function(){
+    return this.each(function () {
         var scrollPane = $(this);
         var scrollTarget = (typeof settings.scrollTarget == "number") ? settings.scrollTarget : $(settings.scrollTarget);
         var scrollY = (typeof scrollTarget == "number") ? scrollTarget : scrollTarget.offset().top + scrollPane.scrollTop() - parseInt(settings.offsetTop);
-        scrollPane.animate({scrollTop : scrollY }, parseInt(settings.duration), settings.easing, function(){
+        scrollPane.animate({ scrollTop: scrollY }, parseInt(settings.duration), settings.easing, function () {
             if (typeof callback == 'function') { callback.call(this); }
         });
     });
@@ -386,33 +397,33 @@ var dateFormat = function () {
             L = date[_ + "Milliseconds"](),
             o = utc ? 0 : date.getTimezoneOffset(),
             flags = {
-                d:    d,
-                dd:   pad(d),
-                ddd:  dF.i18n.dayNames[D],
+                d: d,
+                dd: pad(d),
+                ddd: dF.i18n.dayNames[D],
                 dddd: dF.i18n.dayNames[D + 7],
-                m:    m + 1,
-                mm:   pad(m + 1),
-                mmm:  dF.i18n.monthNames[m],
+                m: m + 1,
+                mm: pad(m + 1),
+                mmm: dF.i18n.monthNames[m],
                 mmmm: dF.i18n.monthNames[m + 12],
-                yy:   String(y).slice(2),
+                yy: String(y).slice(2),
                 yyyy: y,
-                h:    H % 12 || 12,
-                hh:   pad(H % 12 || 12),
-                H:    H,
-                HH:   pad(H),
-                M:    M,
-                MM:   pad(M),
-                s:    s,
-                ss:   pad(s),
-                l:    pad(L, 3),
-                L:    pad(L > 99 ? Math.round(L / 10) : L),
-                t:    H < 12 ? "a"  : "p",
-                tt:   H < 12 ? "am" : "pm",
-                T:    H < 12 ? "A"  : "P",
-                TT:   H < 12 ? "AM" : "PM",
-                Z:    utc ? "UTC" : (String(date).match(timezone) || [""]).pop().replace(timezoneClip, ""),
-                o:    (o > 0 ? "-" : "+") + pad(Math.floor(Math.abs(o) / 60) * 100 + Math.abs(o) % 60, 4),
-                S:    ["th", "st", "nd", "rd"][d % 10 > 3 ? 0 : (d % 100 - d % 10 != 10) * d % 10]
+                h: H % 12 || 12,
+                hh: pad(H % 12 || 12),
+                H: H,
+                HH: pad(H),
+                M: M,
+                MM: pad(M),
+                s: s,
+                ss: pad(s),
+                l: pad(L, 3),
+                L: pad(L > 99 ? Math.round(L / 10) : L),
+                t: H < 12 ? "a" : "p",
+                tt: H < 12 ? "am" : "pm",
+                T: H < 12 ? "A" : "P",
+                TT: H < 12 ? "AM" : "PM",
+                Z: utc ? "UTC" : (String(date).match(timezone) || [""]).pop().replace(timezoneClip, ""),
+                o: (o > 0 ? "-" : "+") + pad(Math.floor(Math.abs(o) / 60) * 100 + Math.abs(o) % 60, 4),
+                S: ["th", "st", "nd", "rd"][d % 10 > 3 ? 0 : (d % 100 - d % 10 != 10) * d % 10]
             };
 
         return mask.replace(token, function ($0) {
@@ -423,17 +434,17 @@ var dateFormat = function () {
 
 // Some common format strings
 dateFormat.masks = {
-    "default":      "ddd mmm dd yyyy HH:MM:ss",
-    shortDate:      "m/d/yy",
-    mediumDate:     "mmm d, yyyy",
-    longDate:       "mmmm d, yyyy",
-    fullDate:       "dddd, mmmm d, yyyy",
-    shortTime:      "h:MM TT",
-    mediumTime:     "h:MM:ss TT",
-    longTime:       "h:MM:ss TT Z",
-    isoDate:        "yyyy-mm-dd",
-    isoTime:        "HH:MM:ss",
-    isoDateTime:    "yyyy-mm-dd'T'HH:MM:ss",
+    "default": "ddd mmm dd yyyy HH:MM:ss",
+    shortDate: "m/d/yy",
+    mediumDate: "mmm d, yyyy",
+    longDate: "mmmm d, yyyy",
+    fullDate: "dddd, mmmm d, yyyy",
+    shortTime: "h:MM TT",
+    mediumTime: "h:MM:ss TT",
+    longTime: "h:MM:ss TT Z",
+    isoDate: "yyyy-mm-dd",
+    isoTime: "HH:MM:ss",
+    isoDateTime: "yyyy-mm-dd'T'HH:MM:ss",
     isoUtcDateTime: "UTC:yyyy-mm-dd'T'HH:MM:ss'Z'"
 };
 
