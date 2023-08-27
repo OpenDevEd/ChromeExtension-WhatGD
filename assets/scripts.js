@@ -58,7 +58,7 @@ var getHistoryByDay = function (day, scroll, nb, filter) {
     });
 };
 
-var getHistoryForDays = function (day, dayto, scroll, nb, filter) {
+var getHistoryForDays = function (day, dayto, scroll, nb, page) {
     scroll = scroll == undefined;
     nb = nb || 5000;
     if (is_searching) {
@@ -88,8 +88,17 @@ var getHistoryForDays = function (day, dayto, scroll, nb, filter) {
         };
 
         chrome.history.search(queryDiagrams, function (resultsDiagrams) {
-             var filteredResults = resultsDiagrams.concat(resultsGoogle).filter(item => regex.test(item.url));
+            var filteredResults = resultsDiagrams.concat(resultsGoogle).filter(item => regex.test(item.url));
             historyResponse(filteredResults, dateStart, dateEnd, scroll);
+            
+            if (page == 'fullHistory') {
+                var urlParams = new URLSearchParams(window.location.search);
+                var filter = urlParams.get('filter');
+                $("#myInput").val(filter);
+                var inputValue = $("#myInput").val().toLowerCase();
+                applyFilter(inputValue);
+            }
+            
         });
     });
 
@@ -138,9 +147,11 @@ var getFavicon = function (url) {
     return "background-image: -webkit-image-set(url('" + url + "') 1x, url('" + url + "') 2x)";
 };
 var historyResponse = function (results, start, end, scroll) {
+
     var datas = {}, item_date, item_date_day;
     var checker = {};
     $.each(results, function (k, v) {
+        //console.log(k, v)
         //var shorturl = v.url.replace(/(\#|\?).*$/, "").replace(/(\/edit).*$/, "").replace(/^.*\//, "");
 
         const regex = /(?:\/d\/|#|folders\/)([A-Za-z0-9_\-]+)(?:\/edit|\/|$)/;
@@ -148,7 +159,7 @@ var historyResponse = function (results, start, end, scroll) {
 
         if (match) {
             var shorturl = match[1];
-        }else{
+        } else {
             return;
         }
 
@@ -176,12 +187,28 @@ var historyResponse = function (results, start, end, scroll) {
             output += '<div class="entry" id="' + k + '">';
         }
         output += '<h2>' + new Date(parseFloat(k)).format(chrome.i18n.getMessage('date_format')) + '</h2>';
+        // Day's items
+        const oneDayItems = [];
         $.each(v, function (id, item) {
-            if (id != 'empty') {
-                output += '<span class="row" id="' + item[0] + '">';
+            let flagAdded = false;
+            for (let i = 0; i < oneDayItems.length; i++) {
+                if (id > oneDayItems[i]['id']) {
+                    flagAdded = true;
+                    oneDayItems.splice(i, 0, { id: id, item: item });
+                    break;
+                }
+            }
+            if (flagAdded === false) {
+                oneDayItems.push({ id: id, item: item });
+            }
+        });
+
+        oneDayItems.forEach((element) => {
+            if (element.id != 'empty') {
+                output += '<span class="row" id="' + element.item[0] + '">';
                 // output+= '<a class="remove-single" title="' + chrome.i18n.getMessage('history_remove_single') + '">⨯</a>';
-                output += '<span class="date">' + new Date(parseFloat(id)).format('isoDateTime') + '</span>';
-                output += '<a class="link" href="' + escapeHtml(item[2]) + '" target="_blank" style="' + getFavicon(item[2]) + '">' + escapeHtml(item[1] ? item[1] : item[2]) + '</a>';
+                output += '<span class="date">' + new Date(parseFloat(element.id)).format('isoDateTime') + '</span>';
+                output += '<a class="link" href="' + escapeHtml(element.item[2]) + '" target="_blank" style="' + getFavicon(element.item[2]) + '">' + escapeHtml(element.item[1] ? element.item[1] : element.item[2]) + '</a>';
                 output += '</span>';
             } else {
                 output += '<span class="row empty"><span>';
@@ -189,6 +216,8 @@ var historyResponse = function (results, start, end, scroll) {
                 output += '</span></span>';
             }
         });
+        // End. Day's items
+
         if (!$('#container #' + k).length) {
             output += '</div>';
         }
@@ -245,14 +274,19 @@ var escapeHtml = function (unsafe) {
         .replace(/'/g, "&#039;");
 };
 
+function applyFilter(value) {
+    $("span.row").each(function () {
+        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+    });
+}
+
+
 $(document).ready(function () {
 
     // search box actions
     $("#myInput").on("keyup", function () {
         var value = $(this).val().toLowerCase();
-        $("span.row").filter(function () {
-            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-        });
+        applyFilter(value);
     });
 
     // Load and replace language
@@ -268,14 +302,22 @@ $(document).ready(function () {
 
     if ($('body.popup').length) {
         daysago = new Date(Date.now() - 10 * 24 * 3600 * 1000)
-        getHistoryForDays(daysago, today, false, 150, "google.com");
+        getHistoryForDays(daysago, today, false, 10000, 'popup');
+
         $('#view-full-history').on('click', function () {
             // chrome.tabs.create({url: 'chrome://history'});
-            chrome.tabs.create({ url: chrome.runtime.getURL("whatgd.html") });
+            var tabUrl = 'whatgd.html';
+            var inputValue = $("#myInput").val();
+            if (inputValue != ''){
+                tabUrl += '?filter=' + inputValue;
+            }
+            chrome.tabs.create({ url: chrome.runtime.getURL(tabUrl) });
         });
     } else {
-        daysago = new Date(Date.now() - 90 * 24 * 3600 * 1000)
-        getHistoryForDays(daysago, today, false, 10000, "google.com");
+
+        daysago = new Date(Date.now() - 90 * 24 * 3600 * 1000);
+        getHistoryForDays(daysago, today, false, 10000, 'fullHistory');
+
         /*
             $('#datepicker').datetimepicker({
                 timepicker: false,
