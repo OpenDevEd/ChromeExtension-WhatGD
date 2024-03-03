@@ -41,6 +41,12 @@
     "history_recent": {
         "message": "Histórico recente"
     },
+    "history_empty":{
+        "message": "O histórico do seu browser está vazio."
+    },
+    "history_without_GD_links":{
+        "message": "O histórico do seu navegador não contém quaisquer ligações do Google Drive."
+    },
     "date_format": {
         "message": "dddd, d mmmm yyyy"
     },

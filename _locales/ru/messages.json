@@ -41,6 +41,12 @@
     "history_recent": {
         "message": "Недавняя история"
     },
+    "history_empty":{
+        "message": "История браузера пуста."
+    },
+    "history_without_GD_links":{
+        "message": "История браузера не содержит Google Drive ссылок."
+    },
     "date_format": {
         "message": "d mmmm yyyy, dddd"
     },

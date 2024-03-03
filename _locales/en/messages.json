@@ -41,6 +41,12 @@
     "history_recent": {
         "message": "Recent history in Google Drive"
     },
+    "history_empty":{
+        "message": "Your browser history is empty."
+    },
+    "history_without_GD_links":{
+        "message": "Your browser history does not contain any Google Drive links."
+    },
     "date_format": {
         "message": "dddd, mmmm d, yyyy"
     },

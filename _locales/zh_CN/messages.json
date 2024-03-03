@@ -41,6 +41,12 @@
     "history_recent": {
         "message": "最近历史"
     },
+    "history_empty":{
+        "message": "您的浏览器历史记录为空。"
+    },
+    "history_without_GD_links":{
+        "message": "您的浏览器历史记录不包含任何 Google Drive 链接。"
+    },
     "date_format": {
         "message": "dddd, mmmm d, yyyy"
     },

@@ -41,6 +41,12 @@
     "history_recent": {
         "message": "kürzlicher Verlauf"
     },
+    "history_empty":{
+        "message": "Ihr Browserverlauf ist leer."
+    },
+    "history_without_GD_links":{
+        "message": "Ihr Browserverlauf enthält keine Google Drive-Links."
+    },
     "date_format": {
         "message": "dddd, d. mmmm yyyy"
     },
