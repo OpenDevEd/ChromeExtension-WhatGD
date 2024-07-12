@@ -164,14 +164,16 @@ var historyResponse = function (results, start, end, scroll, resultsAll) {
     } else {
 
         $.each(results, function (k, v) {
-            //console.log(k, v)
-            //var shorturl = v.url.replace(/(\#|\?).*$/, "").replace(/(\/edit).*$/, "").replace(/^.*\//, "");
-
-            const regex = /(?:\/d\/|#|folders\/)([A-Za-z0-9_\-]+)(?:\/edit|\/|$)/;
+            let regex, shorturl;
+            if (v.url.includes('diagrams.net')) {
+                regex = /https:\/\/app\.diagrams\.net\/(?:\?client=\d*)?(#G[A-Za-z0-9_\-]+)/;
+            } else {
+                regex = /(?:\/d\/|#|folders\/)([A-Za-z0-9_\-]+)(?:\/edit|\/|$)/;
+            }
             const match = v.url.match(regex);
 
             if (match) {
-                var shorturl = match[1];
+                shorturl = match[1];
             } else {
                 return;
             }
